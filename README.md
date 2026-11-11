@@ -25,7 +25,7 @@ cd ../backend && uv sync
 ./scripts/dev.sh
 ```
 
-浏览器打开 <http://localhost:5173>。开发环境可通过 `?variant=A`、`B`、`C` 切换三种布局草案，也可使用左右方向键切换。
+浏览器打开 <http://localhost:5173>。界面采用已确认的 C 方案：卡牌操作区占主要空间，情境动画区位于右侧，不保留常驻完整解释区。
 
 ## 单独验证
 
