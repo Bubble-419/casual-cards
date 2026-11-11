@@ -1,0 +1,23 @@
+:root {
+  --ink: #211d28;
+  --muted: #756d80;
+  --surface: #ffffff;
+  --canvas: #f0edf5;
+  --line: #ddd8e5;
+  --line-strong: #c9c2d3;
+  --grid-line: rgb(72 58 95 / 5%);
+  --accent: #5b48c2;
+  --accent-soft: #eeebff;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--ink);
+  background: var(--canvas);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
+body { min-height: 100svh; }
+* { box-sizing: border-box; }

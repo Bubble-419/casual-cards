@@ -1,0 +1,21 @@
+.DS_Store
+._*
+
+# Frontend
+node_modules/
+dist/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local prototype data
+data/*.db
+data/*.db-*
+exports/
+
+# Editors
+.idea/
+.vscode/

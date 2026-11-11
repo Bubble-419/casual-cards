@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297">
+<rect width="210" height="297" fill="white"/>
+<style>text{font-family:"Heiti SC","PingFang SC",sans-serif;fill:#24334a}</style>
+<text x="15" y="17" font-size="6">卡框窗口纸样 · 尺寸草案 V0</text>
+<text x="15" y="26" font-size="3.6">已确认整卡尺寸；边框与窗口尺寸为待测试建议。</text>
+<text x="15" y="33" font-size="3.6">矩形占位，未还原拼接口；不代表最终加工轮廓。</text>
+<text x="30" y="46" font-size="4.4">普通卡</text>
+<text x="30" y="52" font-size="3.4">48 × 72 mm</text>
+<rect x="30" y="55" width="48" height="72" fill="#dce8f3" stroke="#24334a" stroke-width=".3"/>
+<rect x="36" y="70" width="36" height="51" fill="white" stroke="#24334a" stroke-width=".3"/>
+<rect x="48" y="56.5" width="12" height="12" fill="white" stroke="#65758a" stroke-width=".3"/>
+<text x="49" y="63.7" font-size="2.5">12×12</text>
+<text x="40" y="94.5" font-size="3.8">镂空窗口</text>
+<text x="39" y="101.5" font-size="3.4">36 × 51 mm</text>
+<text x="30" y="134" font-size="3.2">左右及底边：6 mm</text>
+<text x="30" y="140" font-size="3.2">顶部预留：15 mm</text>
+<text x="125" y="46" font-size="4.4">多变量联动卡</text>
+<text x="125" y="52" font-size="3.4">48 × 144 mm</text>
+<rect x="125" y="55" width="48" height="144" fill="#dce8f3" stroke="#24334a" stroke-width=".3"/>
+<rect x="131" y="70" width="36" height="123" fill="white" stroke="#24334a" stroke-width=".3"/>
+<rect x="143" y="56.5" width="12" height="12" fill="white" stroke="#65758a" stroke-width=".3"/>
+<text x="144" y="63.7" font-size="2.5">12×12</text>
+<text x="135" y="130.5" font-size="3.8">镂空窗口</text>
+<text x="134" y="137.5" font-size="3.4">36 × 123 mm</text>
+<text x="125" y="206" font-size="3.2">左右及底边：6 mm</text>
+<text x="125" y="212" font-size="3.2">顶部预留：15 mm</text>
+<text x="15" y="157" font-size="4.3">纸样使用说明</text>
+<text x="15" y="165" font-size="3.3">蓝色区域保留，白色大窗口挖空。</text>
+<text x="15" y="172" font-size="3.3">顶部小框仅表示标记区域占位。</text>
+<text x="15" y="179" font-size="3.3">12 mm 不是已验证的识别尺寸。</text>
+<text x="15" y="190" font-size="3.5">先试放在屏幕上：</text>
+<text x="15" y="197" font-size="3.2">名称、符号、预测文字是否可读；</text>
+<text x="15" y="204" font-size="3.2">能否点中内容，以及顺利拿取。</text>
+<text x="15" y="225" font-size="3.6">打印：A4，实际大小 / 100%，关闭“适合页面”。</text>
+<text x="15" y="233" font-size="3.6">先用尺检查下面的 50 mm 标尺，再试做。</text>
+<path d="M15 242 L65 242" stroke="#24334a" stroke-width=".3"/>
+<path d="M15 239 L15 245" stroke="#24334a" stroke-width=".3"/>
+<text x="14" y="250" font-size="3">0</text>
+<path d="M25 239 L25 245" stroke="#24334a" stroke-width=".3"/>
+<text x="24" y="250" font-size="3">10</text>
+<path d="M35 239 L35 245" stroke="#24334a" stroke-width=".3"/>
+<text x="34" y="250" font-size="3">20</text>
+<path d="M45 239 L45 245" stroke="#24334a" stroke-width=".3"/>
+<text x="44" y="250" font-size="3">30</text>
+<path d="M55 239 L55 245" stroke="#24334a" stroke-width=".3"/>
+<text x="54" y="250" font-size="3">40</text>
+<path d="M65 239 L65 245" stroke="#24334a" stroke-width=".3"/>
+<text x="64" y="250" font-size="3">50</text>
+<text x="69" y="243" font-size="3.3">mm</text>
+<text x="15" y="268" font-size="3.4">需要实测：触控共存、标记识别、卡框强度与拼接口空间。</text>
+<text x="15" y="276" font-size="3.4">整卡尺寸是否包含凸出的拼接口，待原始轮廓确认。</text>
+</svg>

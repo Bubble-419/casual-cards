@@ -1,0 +1,11 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Local camera, calibration, persistence and export service for Casual Cards"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.162.4",
+    "opencv-contrib-python>=5.0.0.93",
+    "uvicorn[standard]>=0.54.0",
+]

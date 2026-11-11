@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">
+<rect width="1200" height="680" fill="#f8fafc"/>
+<style>text{font-family:"Heiti SC","PingFang SC",sans-serif}</style>
+<text x="48" y="64" font-size="34" fill="#223047">连接标记示意 · 两端使用同一编号</text>
+<text x="48" y="105" font-size="23" fill="#526277">标记显示在镂空窗口内，不画在会被纸卡遮住的位置。</text>
+<rect x="100" y="155" width="240" height="360" rx="12" fill="#dce3eb" stroke="#c8d1da" stroke-width="2"/>
+<rect x="130" y="215" width="180" height="250" rx="5" fill="#ffffff" stroke="#c8d1da" stroke-width="2"/>
+<text x="122" y="193" font-size="22" fill="#223047">物体卡</text>
+<rect x="380" y="155" width="240" height="360" rx="12" fill="#dce3eb" stroke="#c8d1da" stroke-width="2"/>
+<rect x="410" y="215" width="180" height="250" rx="5" fill="#ffffff" stroke="#c8d1da" stroke-width="2"/>
+<text x="402" y="193" font-size="22" fill="#223047">属性卡</text>
+<text x="148" y="311" font-size="37" fill="#223047">物体 B</text>
+<text x="448" y="310" font-size="46" fill="#223047">力</text>
+<text x="430" y="413" font-size="24" fill="#223047">3 N，同向</text>
+<rect x="262" y="337" width="42" height="30" rx="6" fill="#e5f6fa" stroke="#19768b" stroke-width="2"/>
+<text x="267" y="359" font-size="18" fill="#14697d">连1</text>
+<rect x="414" y="337" width="42" height="30" rx="6" fill="#e5f6fa" stroke="#19768b" stroke-width="2"/>
+<text x="419" y="359" font-size="18" fill="#14697d">连1</text>
+<text x="147" y="567" font-size="22" fill="#14697d">“连1”与“连1”配对，表示一条有效连接。</text>
+<text x="704" y="201" font-size="27" fill="#223047">显示规则（建议）</text>
+<text x="704" y="253" font-size="22" fill="#223047">• 接口稳定对齐且符合规则后出现</text>
+<text x="704" y="304" font-size="22" fill="#223047">• 每条连接分配一个编号</text>
+<text x="704" y="355" font-size="22" fill="#223047">• 两端显示相同编号</text>
+<text x="704" y="406" font-size="22" fill="#223047">• 稳定分开后，两端一起消失</text>
+<text x="704" y="486" font-size="23" fill="#14697d">“连1”是连接身份，</text>
+<text x="704" y="523" font-size="23" fill="#14697d">与卡牌的状态编号分开。</text>
+<text x="48" y="646" font-size="21" fill="#526277">灰色为实体卡框，白色为屏幕窗口。仅示意位置，标记实际大小需在屏幕上试调。</text>
+</svg>

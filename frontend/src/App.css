@@ -1,0 +1,52 @@
+.app-shell { min-height: 100svh; padding: 24px 28px 88px; display: flex; flex-direction: column; gap: 16px; }
+.app-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.app-header h1 { margin: 4px 0 0; font-size: clamp(24px, 3vw, 40px); line-height: 1; letter-spacing: -0.04em; }
+.eyebrow { margin: 0; color: var(--muted); font-size: 12px; letter-spacing: 0.12em; font-weight: 700; }
+.status-badge { display: flex; align-items: center; gap: 8px; min-width: 210px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--muted); font-size: 13px; }
+.status-badge small { margin-left: auto; font-size: 11px; }
+.status-dot { width: 9px; height: 9px; border-radius: 50%; background: #d99a38; box-shadow: 0 0 0 4px rgb(217 154 56 / 12%); }
+.status-badge.is-online .status-dot { background: #23966f; box-shadow: 0 0 0 4px rgb(35 150 111 / 12%); }
+.global-controls { display: flex; align-items: center; gap: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 16px; background: rgb(255 255 255 / 78%); backdrop-filter: blur(14px); }
+button { min-height: 42px; border: 1px solid var(--line-strong); border-radius: 11px; padding: 0 16px; color: var(--ink); background: var(--surface); font: inherit; font-weight: 650; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:focus-visible { outline: 3px solid rgb(91 72 194 / 20%); outline-offset: 2px; }
+button.primary { color: white; background: var(--accent); border-color: var(--accent); }
+.layout { flex: 1; min-height: 620px; display: grid; gap: 14px; }
+.layout-a { grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.85fr); grid-template-rows: minmax(280px, 1fr) minmax(240px, 0.8fr); }
+.layout-a .panel-cards { grid-row: 1 / 3; }
+.layout-b { grid-template-rows: minmax(280px, 0.78fr) minmax(320px, 1fr); }
+.layout-b .lower-workspace { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr); gap: 14px; }
+.layout-c { grid-template-columns: minmax(0, 1.65fr) minmax(340px, 0.65fr); }
+.layout-c .side-stack { display: grid; grid-template-rows: 0.9fr 1.1fr; gap: 14px; }
+.workspace-panel { min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: 0 16px 45px rgb(62 47 110 / 6%); }
+.workspace-panel > header { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px 13px; border-bottom: 1px solid var(--line); }
+.workspace-panel h2 { margin: 0; font-size: 17px; line-height: 1.2; }
+.workspace-panel header p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+.panel-index { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9px; color: var(--accent); background: var(--accent-soft); font: 700 11px/1 var(--mono); }
+.placeholder-content { position: relative; flex: 1; min-height: 180px; overflow: hidden; background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px); background-size: 24px 24px; }
+.panel-cards .placeholder-content { background-color: #f8f6ff; }
+.panel-scene .placeholder-content { background-color: #f5fbfa; }
+.panel-explanation .placeholder-content { background-color: #fffaf5; }
+.paper-card { position: absolute; top: 20%; width: 104px; height: 156px; display: grid; place-items: center; border: 2px solid #c9c3d6; border-radius: 12px; background: rgb(255 255 255 / 88%); color: #8c7754; font-size: 20px; font-weight: 800; box-shadow: 0 10px 26px rgb(58 42 93 / 9%); }
+.card-object { left: 18%; transform: rotate(-2deg); }
+.card-property { left: calc(18% + 118px); transform: rotate(1deg); }
+.drop-hint, .scene-hint { position: absolute; right: 18px; bottom: 16px; padding: 6px 10px; border-radius: 8px; color: var(--muted); background: rgb(255 255 255 / 72%); font-size: 12px; }
+.track-line { position: absolute; left: 10%; right: 10%; top: 63%; height: 2px; background: #85aa9f; }
+.block-a { position: absolute; top: calc(63% - 58px); left: 45%; width: 72px; height: 56px; display: grid; place-items: center; border-radius: 10px 10px 4px 4px; color: white; background: #4e8073; font-size: 24px; font-weight: 800; }
+.velocity-arrow { position: absolute; top: calc(63% - 98px); left: 45%; color: #32665a; font-size: 18px; font-weight: 800; }
+.explanation-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.node { min-width: 90px; padding: 12px 14px; border: 1px solid #d7bda5; border-radius: 12px; background: white; text-align: center; font-size: 13px; font-weight: 750; }
+.connector { width: min(80px, 14vw); height: 2px; background: #ad5c56; }
+.prototype-switcher { position: fixed; left: 50%; bottom: 18px; z-index: 10; display: flex; align-items: center; gap: 10px; padding: 7px; border: 1px solid rgb(255 255 255 / 20%); border-radius: 999px; color: white; background: #24202e; box-shadow: 0 15px 38px rgb(28 20 45 / 28%); transform: translateX(-50%); }
+.prototype-switcher button { min-width: 38px; min-height: 34px; padding: 0; border: 0; color: white; background: rgb(255 255 255 / 12%); }
+.prototype-switcher strong { min-width: 168px; text-align: center; font-size: 12px; letter-spacing: 0.02em; }
+
+@media (max-width: 900px) {
+  .app-shell { padding: 18px 18px 82px; }
+  .app-header, .global-controls { align-items: stretch; flex-wrap: wrap; }
+  .status-badge { min-width: 0; }
+  .global-controls button { flex: 1 1 140px; }
+  .layout-a, .layout-b .lower-workspace, .layout-c { grid-template-columns: 1fr; }
+  .layout-a { grid-template-rows: repeat(3, minmax(280px, 1fr)); }
+  .layout-a .panel-cards { grid-row: auto; }
+}
