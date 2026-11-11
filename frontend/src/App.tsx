@@ -17,13 +17,20 @@ function StatusBadge({ health }: { health: HealthState | null }) {
   )
 }
 
-function GlobalControls() {
+function SceneControls() {
   return (
-    <nav className="global-controls" aria-label="任务控制">
-      <button type="button">构建完成</button>
+    <nav className="panel-controls" aria-label="动画控制">
       <button type="button" className="primary">开始</button>
       <button type="button">暂停／继续</button>
       <button type="button">重新开始</button>
+    </nav>
+  )
+}
+
+function CardControls() {
+  return (
+    <nav className="panel-controls" aria-label="解释构建控制">
+      <button type="button">构建完成</button>
       <button type="button">提交最终解释</button>
     </nav>
   )
@@ -33,11 +40,12 @@ function CardWorkspace() {
   return (
     <section className="workspace-panel panel-cards">
       <header>
-        <span className="panel-index">02</span>
-        <div>
+        <div className="panel-heading">
+          <span className="panel-index">02</span>
           <h2>卡牌操作区</h2>
           <p>观察情境后，在这里摆放、绑定与编辑实体卡牌</p>
         </div>
+        <CardControls />
       </header>
       <div className="placeholder-content">
         <div className="paper-card card-object">物件卡</div>
@@ -52,11 +60,12 @@ function SceneWorkspace() {
   return (
     <section className="workspace-panel panel-scene">
       <header>
-        <span className="panel-index">01</span>
-        <div>
+        <div className="panel-heading">
+          <span className="panel-index">01</span>
           <h2>情境动画区</h2>
           <p>先观察初始情境；开始后在同一区域查看运动结果</p>
         </div>
+        <SceneControls />
       </header>
       <div className="placeholder-content">
         <div className="track-line" />
@@ -85,22 +94,11 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div>
-          <p className="eyebrow">CASUAL CARDS · D02 双区布局</p>
-          <h1>触控屏实体卡原型</h1>
-        </div>
+        <h1>触控屏实体卡原型</h1>
         <StatusBadge health={health} />
       </header>
       <main className="layout-stacked">
         <SceneWorkspace />
-        <div className="workflow-bar">
-          <div className="workflow-cue" aria-label="任务顺序">
-            <span>观察情境</span>
-            <span aria-hidden="true">↓</span>
-            <strong>构建解释</strong>
-          </div>
-          <GlobalControls />
-        </div>
         <CardWorkspace />
       </main>
     </div>
