@@ -7,6 +7,8 @@ import cv2
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
+from domain_models import SessionDocument
+
 
 app = FastAPI(title="Casual Cards Local Service", version="0.1.0")
 app.add_middleware(
@@ -27,6 +29,11 @@ async def health() -> dict[str, object]:
         "arucoAvailable": hasattr(cv2, "aruco"),
         "timestamp": datetime.now(UTC).isoformat(),
     }
+
+
+@app.get("/api/domain-schema")
+async def domain_schema() -> dict[str, object]:
+    return SessionDocument.model_json_schema()
 
 
 @app.websocket("/ws/card-poses")

@@ -1,0 +1,279 @@
+{
+  "schema_version": "0.1",
+  "session_id": "session-example-001",
+  "group_id": "group-example",
+  "task_id": "first-case-no-added-horizontal-action",
+  "registered_cards": [
+    {"card_id": "card-object-a-1", "card_type": "object", "marker_id": null},
+    {"card_id": "card-object-a-2", "card_type": "object", "marker_id": null},
+    {"card_id": "card-property-motion", "card_type": "property", "marker_id": null},
+    {"card_id": "card-return-tendency", "card_type": "return", "marker_id": null},
+    {"card_id": "card-return-resultant", "card_type": "return", "marker_id": null}
+  ],
+  "scene_objects": [
+    {
+      "scene_object_id": "scene-object-a",
+      "display_name": "物体A",
+      "scene_asset_id": "slider-a"
+    }
+  ],
+  "current_draft": {
+    "updated_at": "2026-11-11T10:02:00+08:00",
+    "snapshot": {
+      "scene_object_names": [
+        {"scene_object_id": "scene-object-a", "display_name": "物体A"}
+      ],
+      "card_states": [
+        {
+          "card_id": "card-object-a-1",
+          "is_in_explanation": true,
+          "pose": {
+            "center": {"x": 0.22, "y": 0.55},
+            "rotation_degrees": 0,
+            "input_source": "mouse_simulation"
+          }
+        },
+        {
+          "card_id": "card-object-a-2",
+          "is_in_explanation": true,
+          "pose": {
+            "center": {"x": 0.62, "y": 0.55},
+            "rotation_degrees": 0,
+            "input_source": "mouse_simulation"
+          }
+        },
+        {
+          "card_id": "card-property-motion",
+          "is_in_explanation": true,
+          "pose": {
+            "center": {"x": 0.36, "y": 0.55},
+            "rotation_degrees": 0,
+            "input_source": "mouse_simulation"
+          }
+        },
+        {
+          "card_id": "card-return-tendency",
+          "is_in_explanation": true,
+          "pose": {
+            "center": {"x": 0.48, "y": 0.42},
+            "rotation_degrees": 0,
+            "input_source": "mouse_simulation"
+          }
+        },
+        {
+          "card_id": "card-return-resultant",
+          "is_in_explanation": true,
+          "pose": {
+            "center": {"x": 0.76, "y": 0.55},
+            "rotation_degrees": 0,
+            "input_source": "mouse_simulation"
+          }
+        }
+      ],
+      "bindings": [
+        {"card_id": "card-object-a-1", "scene_object_id": "scene-object-a"},
+        {"card_id": "card-object-a-2", "scene_object_id": "scene-object-a"}
+      ],
+      "card_field_values": [
+        {
+          "card_id": "card-property-motion",
+          "field_id": "property-reference",
+          "purpose": "explanation",
+          "selected_option_ids": ["motion-state"],
+          "supplemental_text": null
+        },
+        {
+          "card_id": "card-property-motion",
+          "field_id": "property-helper",
+          "purpose": "auxiliary",
+          "selected_option_ids": [],
+          "supplemental_text": "辅助信息示例；不自动填写物件归位卡"
+        }
+      ],
+      "return_card_values": [
+        {
+          "return_card_id": "card-return-tendency",
+          "property_card_id": "card-property-motion",
+          "role": "tendency",
+          "selected_option_id": "motion-state.uniform-rightward",
+          "supplemental_text": null
+        },
+        {
+          "return_card_id": "card-return-resultant",
+          "property_card_id": "card-property-motion",
+          "role": "resultant",
+          "selected_option_id": "motion-state.uniform-rightward",
+          "supplemental_text": null
+        }
+      ],
+      "connections": [
+        {
+          "connection_id": "connection-object-property",
+          "endpoint_a": {"card_id": "card-object-a-1", "port_id": "right"},
+          "endpoint_b": {"card_id": "card-property-motion", "port_id": "left"}
+        }
+      ]
+    }
+  },
+  "scenario_inputs": [
+    {
+      "input_id": "input-001",
+      "scenario_id": "first-case-no-added-horizontal-action",
+      "created_at": "2026-11-11T10:00:00+08:00",
+      "conditions": [
+        {
+          "condition_id": "given-initial-motion",
+          "origin": "system_given",
+          "target_scene_object_id": "scene-object-a",
+          "source_card_id": null,
+          "field_id": "initial-horizontal-motion",
+          "selected_option_id": "uniform-rightward"
+        },
+        {
+          "condition_id": "given-added-horizontal-action",
+          "origin": "system_given",
+          "target_scene_object_id": "scene-object-a",
+          "source_card_id": null,
+          "field_id": "added-horizontal-action",
+          "selected_option_id": "none"
+        }
+      ]
+    }
+  ],
+  "explanation_versions": [
+    {
+      "version_id": "version-prediction-001",
+      "kind": "prediction",
+      "created_at": "2026-11-11T10:02:00+08:00",
+      "scenario_input_id": "input-001",
+      "snapshot": {
+        "scene_object_names": [
+          {"scene_object_id": "scene-object-a", "display_name": "物体A"}
+        ],
+        "card_states": [
+          {
+            "card_id": "card-object-a-1",
+            "is_in_explanation": true,
+            "pose": {
+              "center": {"x": 0.22, "y": 0.55},
+              "rotation_degrees": 0,
+              "input_source": "mouse_simulation"
+            }
+          },
+          {
+            "card_id": "card-object-a-2",
+            "is_in_explanation": true,
+            "pose": {
+              "center": {"x": 0.62, "y": 0.55},
+              "rotation_degrees": 0,
+              "input_source": "mouse_simulation"
+            }
+          },
+          {
+            "card_id": "card-property-motion",
+            "is_in_explanation": true,
+            "pose": {
+              "center": {"x": 0.36, "y": 0.55},
+              "rotation_degrees": 0,
+              "input_source": "mouse_simulation"
+            }
+          },
+          {
+            "card_id": "card-return-tendency",
+            "is_in_explanation": true,
+            "pose": {
+              "center": {"x": 0.48, "y": 0.42},
+              "rotation_degrees": 0,
+              "input_source": "mouse_simulation"
+            }
+          },
+          {
+            "card_id": "card-return-resultant",
+            "is_in_explanation": true,
+            "pose": {
+              "center": {"x": 0.76, "y": 0.55},
+              "rotation_degrees": 0,
+              "input_source": "mouse_simulation"
+            }
+          }
+        ],
+        "bindings": [
+          {"card_id": "card-object-a-1", "scene_object_id": "scene-object-a"},
+          {"card_id": "card-object-a-2", "scene_object_id": "scene-object-a"}
+        ],
+        "card_field_values": [
+          {
+            "card_id": "card-property-motion",
+            "field_id": "property-reference",
+            "purpose": "explanation",
+            "selected_option_ids": ["motion-state"],
+            "supplemental_text": null
+          },
+          {
+            "card_id": "card-property-motion",
+            "field_id": "property-helper",
+            "purpose": "auxiliary",
+            "selected_option_ids": [],
+            "supplemental_text": "辅助信息示例；不自动填写物件归位卡"
+          }
+        ],
+        "return_card_values": [
+          {
+            "return_card_id": "card-return-tendency",
+            "property_card_id": "card-property-motion",
+            "role": "tendency",
+            "selected_option_id": "motion-state.uniform-rightward",
+            "supplemental_text": null
+          },
+          {
+            "return_card_id": "card-return-resultant",
+            "property_card_id": "card-property-motion",
+            "role": "resultant",
+            "selected_option_id": "motion-state.uniform-rightward",
+            "supplemental_text": null
+          }
+        ],
+        "connections": [
+          {
+            "connection_id": "connection-object-property",
+            "endpoint_a": {"card_id": "card-object-a-1", "port_id": "right"},
+            "endpoint_b": {"card_id": "card-property-motion", "port_id": "left"}
+          }
+        ]
+      }
+    }
+  ],
+  "animation_results": [
+    {
+      "result_id": "result-001",
+      "created_at": "2026-11-11T10:02:05+08:00",
+      "values": [
+        {
+          "scene_object_id": "scene-object-a",
+          "property_id": "horizontal-motion",
+          "option_id": "uniform-rightward"
+        }
+      ]
+    }
+  ],
+  "animation_runs": [
+    {
+      "run_id": "run-001",
+      "scenario_input_id": "input-001",
+      "prediction_version_id": "version-prediction-001",
+      "result_id": "result-001",
+      "started_at": "2026-11-11T10:02:01+08:00",
+      "finished_at": "2026-11-11T10:02:05+08:00"
+    }
+  ],
+  "key_events": [
+    {
+      "event_id": "event-001",
+      "kind": "prediction_saved",
+      "occurred_at": "2026-11-11T10:02:00+08:00",
+      "related_version_id": "version-prediction-001",
+      "related_run_id": "run-001",
+      "note": null
+    }
+  ]
+}
