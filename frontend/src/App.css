@@ -6,12 +6,16 @@
 .status-badge small { margin-left: auto; font-size: 11px; }
 .status-dot { width: 9px; height: 9px; border-radius: 50%; background: #d99a38; box-shadow: 0 0 0 4px rgb(217 154 56 / 12%); }
 .status-badge.is-online .status-dot { background: #23966f; box-shadow: 0 0 0 4px rgb(35 150 111 / 12%); }
-.global-controls { display: flex; align-items: center; gap: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 16px; background: rgb(255 255 255 / 78%); backdrop-filter: blur(14px); }
+.workflow-bar { z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 62px; padding: 8px 10px 8px 16px; border: 1px solid var(--line); border-radius: 16px; background: rgb(255 255 255 / 86%); box-shadow: 0 8px 24px rgb(62 47 110 / 6%); backdrop-filter: blur(14px); }
+.workflow-cue { display: flex; align-items: center; gap: 9px; flex: 0 0 auto; color: var(--muted); font-size: 13px; }
+.workflow-cue strong { color: var(--ink); }
+.workflow-cue span[aria-hidden="true"] { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px; color: var(--accent); background: var(--accent-soft); font-weight: 800; }
+.global-controls { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 button { min-height: 42px; border: 1px solid var(--line-strong); border-radius: 11px; padding: 0 16px; color: var(--ink); background: var(--surface); font: inherit; font-weight: 650; cursor: pointer; }
 button:hover { border-color: var(--accent); }
 button:focus-visible { outline: 3px solid rgb(91 72 194 / 20%); outline-offset: 2px; }
 button.primary { color: white; background: var(--accent); border-color: var(--accent); }
-.layout-c { flex: 1; min-height: 620px; display: grid; grid-template-columns: minmax(0, 1.72fr) minmax(360px, 0.68fr); gap: 14px; }
+.layout-stacked { flex: 1; min-height: 720px; display: grid; grid-template-rows: minmax(230px, 0.54fr) auto minmax(420px, 1fr); gap: 12px; }
 .workspace-panel { min-height: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: 0 16px 45px rgb(62 47 110 / 6%); }
 .workspace-panel > header { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px 13px; border-bottom: 1px solid var(--line); }
 .workspace-panel h2 { margin: 0; font-size: 17px; line-height: 1.2; }
@@ -24,14 +28,16 @@ button.primary { color: white; background: var(--accent); border-color: var(--ac
 .card-object { left: 18%; transform: rotate(-2deg); }
 .card-property { left: calc(18% + 118px); transform: rotate(1deg); }
 .drop-hint, .scene-hint { position: absolute; right: 18px; bottom: 16px; padding: 6px 10px; border-radius: 8px; color: var(--muted); background: rgb(255 255 255 / 72%); font-size: 12px; }
-.track-line { position: absolute; left: 10%; right: 10%; top: 63%; height: 2px; background: #85aa9f; }
-.block-a { position: absolute; top: calc(63% - 58px); left: 43%; width: 72px; height: 56px; display: grid; place-items: center; border-radius: 10px 10px 4px 4px; color: white; background: #4e8073; font-size: 24px; font-weight: 800; }
-.velocity-arrow { position: absolute; top: calc(63% - 98px); left: 43%; color: #32665a; font-size: 18px; font-weight: 800; }
+.track-line { position: absolute; left: 6%; right: 6%; top: 68%; height: 2px; background: #85aa9f; }
+.block-a { position: absolute; top: calc(68% - 58px); left: 42%; width: 72px; height: 56px; display: grid; place-items: center; border-radius: 10px 10px 4px 4px; color: white; background: #4e8073; font-size: 24px; font-weight: 800; }
+.velocity-arrow { position: absolute; top: calc(68% - 98px); left: 42%; color: #32665a; font-size: 18px; font-weight: 800; }
 
 @media (max-width: 900px) {
   .app-shell { padding: 18px; }
-  .app-header, .global-controls { align-items: stretch; flex-wrap: wrap; }
+  .app-header, .workflow-bar, .global-controls { align-items: stretch; flex-wrap: wrap; }
   .status-badge { min-width: 0; }
+  .workflow-cue { width: 100%; }
+  .global-controls { width: 100%; }
   .global-controls button { flex: 1 1 140px; }
-  .layout-c { grid-template-columns: 1fr; grid-template-rows: minmax(420px, 1.4fr) minmax(280px, 0.8fr); }
+  .layout-stacked { min-height: 760px; grid-template-rows: minmax(240px, 0.7fr) auto minmax(420px, 1.3fr); }
 }

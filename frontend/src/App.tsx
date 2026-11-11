@@ -33,10 +33,10 @@ function CardWorkspace() {
   return (
     <section className="workspace-panel panel-cards">
       <header>
-        <span className="panel-index">01</span>
+        <span className="panel-index">02</span>
         <div>
           <h2>卡牌操作区</h2>
-          <p>摆放、绑定与编辑实体卡牌</p>
+          <p>观察情境后，在这里摆放、绑定与编辑实体卡牌</p>
         </div>
       </header>
       <div className="placeholder-content">
@@ -52,10 +52,10 @@ function SceneWorkspace() {
   return (
     <section className="workspace-panel panel-scene">
       <header>
-        <span className="panel-index">02</span>
+        <span className="panel-index">01</span>
         <div>
           <h2>情境动画区</h2>
-          <p>情境输入决定实际动画</p>
+          <p>先观察初始情境；开始后在同一区域查看运动结果</p>
         </div>
       </header>
       <div className="placeholder-content">
@@ -68,9 +68,10 @@ function SceneWorkspace() {
   )
 }
 
-// Layout decision captured on 2026-11-11: variant C wins; the persistent
-// digital explanation mirror is removed because the physical cards are the
-// shared explanation. Version snapshots and feedback will open on demand.
+// Layout decision captured on 2026-11-11: the persistent digital explanation
+// mirror is removed because the physical cards are the shared explanation.
+// The scene sits above the card workspace to express the observe → construct
+// sequence while preserving full horizontal width for both areas.
 function App() {
   const [health, setHealth] = useState<HealthState | null>(null)
 
@@ -90,10 +91,17 @@ function App() {
         </div>
         <StatusBadge health={health} />
       </header>
-      <GlobalControls />
-      <main className="layout-c">
-        <CardWorkspace />
+      <main className="layout-stacked">
         <SceneWorkspace />
+        <div className="workflow-bar">
+          <div className="workflow-cue" aria-label="任务顺序">
+            <span>观察情境</span>
+            <span aria-hidden="true">↓</span>
+            <strong>构建解释</strong>
+          </div>
+          <GlobalControls />
+        </div>
+        <CardWorkspace />
       </main>
     </div>
   )
