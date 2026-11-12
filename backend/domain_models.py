@@ -14,7 +14,7 @@ class DomainModel(BaseModel):
 class CardType(StrEnum):
     CONTROL_OBJECT = "control_object"
     PROPERTY = "property"
-    RETURN = "return"
+    STATUS = "status"
     LINK = "link"
     SCENE = "scene"
 
@@ -34,7 +34,7 @@ class FieldPurpose(StrEnum):
     AUXILIARY = "auxiliary"
 
 
-class ReturnRole(StrEnum):
+class StatusCardRole(StrEnum):
     TENDENCY = "tendency"
     RESULTANT = "resultant"
 
@@ -88,6 +88,19 @@ class SceneObject(DomainModel):
     scene_asset_id: str
 
 
+class StatusOption(DomainModel):
+    option_id: str
+    label: str
+
+
+class StatusListDefinition(DomainModel):
+    status_list_id: str
+    property_id: str
+    label: str
+    version: int = Field(ge=1)
+    options: list[StatusOption]
+
+
 class CardState(DomainModel):
     card_id: str
     is_in_explanation: bool
@@ -112,10 +125,21 @@ class CardFieldValue(DomainModel):
     supplemental_text: str | None = None
 
 
-class ReturnCardValue(DomainModel):
-    return_card_id: str
+class StatusCardReference(DomainModel):
+    status_card_id: str
+    role: StatusCardRole
+
+
+class PropertyCardValue(DomainModel):
     property_card_id: str
-    role: ReturnRole
+    property_id: str
+    status_list_id: str
+    status_card_references: list[StatusCardReference]
+
+
+class StatusCardValue(DomainModel):
+    status_card_id: str
+    status_list_id: str
     selected_option_id: str | None
     supplemental_text: str | None = None
 
@@ -136,7 +160,8 @@ class ExplanationSnapshot(DomainModel):
     card_states: list[CardState]
     bindings: list[CardBinding]
     card_field_values: list[CardFieldValue]
-    return_card_values: list[ReturnCardValue]
+    property_card_values: list[PropertyCardValue]
+    status_card_values: list[StatusCardValue]
     connections: list[CardConnection]
 
 
@@ -200,12 +225,13 @@ class KeyEvent(DomainModel):
 
 
 class SessionDocument(DomainModel):
-    schema_version: Literal["0.2"]
+    schema_version: Literal["0.3"]
     session_id: str
     group_id: str
     task_id: str
     registered_cards: list[CardDefinition]
     scene_objects: list[SceneObject]
+    status_lists: list[StatusListDefinition]
     current_draft: ExplanationDraft
     scenario_inputs: list[ScenarioInput]
     explanation_versions: list[ExplanationVersion]
@@ -223,6 +249,14 @@ class SessionDocument(DomainModel):
         self._require_unique("explanation version", [item.version_id for item in self.explanation_versions])
         self._require_unique("animation result", [item.result_id for item in self.animation_results])
         self._require_unique("animation run", [item.run_id for item in self.animation_runs])
+        self._require_unique("status list", [item.status_list_id for item in self.status_lists])
+
+        status_lists = {item.status_list_id: item for item in self.status_lists}
+        for status_list in self.status_lists:
+            self._require_unique(
+                f"status option in {status_list.status_list_id}",
+                [option.option_id for option in status_list.options],
+            )
 
         card_types = {card.card_id: card.card_type for card in self.registered_cards}
         scene_object_ids = set(scene_object_id_values)
@@ -235,7 +269,12 @@ class SessionDocument(DomainModel):
         snapshots = [self.current_draft.snapshot]
         snapshots.extend(version.snapshot for version in self.explanation_versions)
         for snapshot in snapshots:
-            self._validate_snapshot(snapshot, card_types, scene_object_ids)
+            self._validate_snapshot(
+                snapshot,
+                card_types,
+                scene_object_ids,
+                status_lists,
+            )
 
         for scenario_input in self.scenario_inputs:
             for condition in scenario_input.conditions:
@@ -296,6 +335,7 @@ class SessionDocument(DomainModel):
         snapshot: ExplanationSnapshot,
         card_types: dict[str, CardType],
         scene_object_ids: set[str],
+        status_lists: dict[str, StatusListDefinition],
     ) -> None:
         for card_state in snapshot.card_states:
             if card_state.card_id not in card_types:
@@ -313,11 +353,55 @@ class SessionDocument(DomainModel):
         for field_value in snapshot.card_field_values:
             if field_value.card_id not in card_types:
                 raise ValueError("card field value references an unknown card")
-        for return_value in snapshot.return_card_values:
-            if card_types.get(return_value.return_card_id) is not CardType.RETURN:
-                raise ValueError("return value requires a return card")
-            if card_types.get(return_value.property_card_id) is not CardType.PROPERTY:
-                raise ValueError("return value must reference a property card")
+
+        status_values = {
+            value.status_card_id: value for value in snapshot.status_card_values
+        }
+        if len(status_values) != len(snapshot.status_card_values):
+            raise ValueError("duplicate status card value")
+
+        referenced_status_cards: dict[str, tuple[str, str]] = {}
+        property_card_ids = [
+            value.property_card_id for value in snapshot.property_card_values
+        ]
+        if len(property_card_ids) != len(set(property_card_ids)):
+            raise ValueError("duplicate property card value")
+        for property_value in snapshot.property_card_values:
+            if card_types.get(property_value.property_card_id) is not CardType.PROPERTY:
+                raise ValueError("property card value requires a property card")
+            status_list = status_lists.get(property_value.status_list_id)
+            if status_list is None:
+                raise ValueError("property card value references an unknown status list")
+            if status_list.property_id != property_value.property_id:
+                raise ValueError("property card value does not match its status list property")
+            for reference in property_value.status_card_references:
+                if card_types.get(reference.status_card_id) is not CardType.STATUS:
+                    raise ValueError("property card must reference a status card")
+                if reference.status_card_id in referenced_status_cards:
+                    raise ValueError("status card cannot belong to more than one property card")
+                referenced_status_cards[reference.status_card_id] = (
+                    property_value.property_card_id,
+                    property_value.status_list_id,
+                )
+
+        for status_value in snapshot.status_card_values:
+            if card_types.get(status_value.status_card_id) is not CardType.STATUS:
+                raise ValueError("status value requires a status card")
+            status_list = status_lists.get(status_value.status_list_id)
+            if status_list is None:
+                raise ValueError("status card value references an unknown status list")
+            reference = referenced_status_cards.get(status_value.status_card_id)
+            if reference is None:
+                raise ValueError("status card value must be associated by a property card")
+            if reference[1] != status_value.status_list_id:
+                raise ValueError("status card and property card must use the same status list")
+            if status_value.selected_option_id is not None:
+                option_ids = {option.option_id for option in status_list.options}
+                if status_value.selected_option_id not in option_ids:
+                    raise ValueError("status card value references an unknown status option")
+
+        if set(status_values) != set(referenced_status_cards):
+            raise ValueError("each associated status card requires exactly one status value")
         for connection in snapshot.connections:
             if connection.endpoint_a.card_id not in card_types:
                 raise ValueError("connection endpoint references an unknown card")

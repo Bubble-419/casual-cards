@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2",
+  "schema_version": "0.3",
   "session_id": "session-example-001",
   "group_id": "group-example",
   "task_id": "first-case-no-added-horizontal-action",
@@ -7,8 +7,8 @@
     {"card_id": "card-control-object-a-1", "card_type": "control_object", "control_object_role": "object", "marker_id": null},
     {"card_id": "card-control-object-a-2", "card_type": "control_object", "control_object_role": "object", "marker_id": null},
     {"card_id": "card-property-motion", "card_type": "property", "control_object_role": null, "marker_id": null},
-    {"card_id": "card-return-tendency", "card_type": "return", "control_object_role": null, "marker_id": null},
-    {"card_id": "card-return-resultant", "card_type": "return", "control_object_role": null, "marker_id": null}
+    {"card_id": "card-status-tendency", "card_type": "status", "control_object_role": null, "marker_id": null},
+    {"card_id": "card-status-resultant", "card_type": "status", "control_object_role": null, "marker_id": null}
   ],
   "scene_objects": [
     {
@@ -17,8 +17,22 @@
       "scene_asset_id": "slider-a"
     }
   ],
+  "status_lists": [
+    {
+      "status_list_id": "motion-state-list",
+      "property_id": "motion-state",
+      "label": "运动状态",
+      "version": 1,
+      "options": [
+        {
+          "option_id": "motion-state.uniform-rightward",
+          "label": "示例占位：向右匀速"
+        }
+      ]
+    }
+  ],
   "current_draft": {
-    "updated_at": "2026-11-11T10:02:00+08:00",
+    "updated_at": "2026-11-12T10:02:00+08:00",
     "snapshot": {
       "scene_object_names": [
         {"scene_object_id": "scene-object-a", "display_name": "物体A"}
@@ -52,7 +66,7 @@
           }
         },
         {
-          "card_id": "card-return-tendency",
+          "card_id": "card-status-tendency",
           "is_in_explanation": true,
           "pose": {
             "center": {"x": 0.48, "y": 0.42},
@@ -61,7 +75,7 @@
           }
         },
         {
-          "card_id": "card-return-resultant",
+          "card_id": "card-status-resultant",
           "is_in_explanation": true,
           "pose": {
             "center": {"x": 0.76, "y": 0.55},
@@ -77,31 +91,33 @@
       "card_field_values": [
         {
           "card_id": "card-property-motion",
-          "field_id": "property-reference",
-          "purpose": "explanation",
-          "selected_option_ids": ["motion-state"],
-          "supplemental_text": null
-        },
-        {
-          "card_id": "card-property-motion",
           "field_id": "property-helper",
           "purpose": "auxiliary",
           "selected_option_ids": [],
           "supplemental_text": "辅助信息示例；不自动填写物件归位卡"
         }
       ],
-      "return_card_values": [
+      "property_card_values": [
         {
-          "return_card_id": "card-return-tendency",
           "property_card_id": "card-property-motion",
-          "role": "tendency",
+          "property_id": "motion-state",
+          "status_list_id": "motion-state-list",
+          "status_card_references": [
+            {"status_card_id": "card-status-tendency", "role": "tendency"},
+            {"status_card_id": "card-status-resultant", "role": "resultant"}
+          ]
+        }
+      ],
+      "status_card_values": [
+        {
+          "status_card_id": "card-status-tendency",
+          "status_list_id": "motion-state-list",
           "selected_option_id": "motion-state.uniform-rightward",
           "supplemental_text": null
         },
         {
-          "return_card_id": "card-return-resultant",
-          "property_card_id": "card-property-motion",
-          "role": "resultant",
+          "status_card_id": "card-status-resultant",
+          "status_list_id": "motion-state-list",
           "selected_option_id": "motion-state.uniform-rightward",
           "supplemental_text": null
         }
@@ -119,7 +135,7 @@
     {
       "input_id": "input-001",
       "scenario_id": "first-case-no-added-horizontal-action",
-      "created_at": "2026-11-11T10:00:00+08:00",
+      "created_at": "2026-11-12T10:00:00+08:00",
       "conditions": [
         {
           "condition_id": "given-initial-motion",
@@ -144,7 +160,7 @@
     {
       "version_id": "version-prediction-001",
       "kind": "prediction",
-      "created_at": "2026-11-11T10:02:00+08:00",
+      "created_at": "2026-11-12T10:02:00+08:00",
       "scenario_input_id": "input-001",
       "snapshot": {
         "scene_object_names": [
@@ -179,7 +195,7 @@
             }
           },
           {
-            "card_id": "card-return-tendency",
+            "card_id": "card-status-tendency",
             "is_in_explanation": true,
             "pose": {
               "center": {"x": 0.48, "y": 0.42},
@@ -188,7 +204,7 @@
             }
           },
           {
-            "card_id": "card-return-resultant",
+            "card_id": "card-status-resultant",
             "is_in_explanation": true,
             "pose": {
               "center": {"x": 0.76, "y": 0.55},
@@ -204,31 +220,33 @@
         "card_field_values": [
           {
             "card_id": "card-property-motion",
-            "field_id": "property-reference",
-            "purpose": "explanation",
-            "selected_option_ids": ["motion-state"],
-            "supplemental_text": null
-          },
-          {
-            "card_id": "card-property-motion",
             "field_id": "property-helper",
             "purpose": "auxiliary",
             "selected_option_ids": [],
             "supplemental_text": "辅助信息示例；不自动填写物件归位卡"
           }
         ],
-        "return_card_values": [
+        "property_card_values": [
           {
-            "return_card_id": "card-return-tendency",
             "property_card_id": "card-property-motion",
-            "role": "tendency",
+            "property_id": "motion-state",
+            "status_list_id": "motion-state-list",
+            "status_card_references": [
+              {"status_card_id": "card-status-tendency", "role": "tendency"},
+              {"status_card_id": "card-status-resultant", "role": "resultant"}
+            ]
+          }
+        ],
+        "status_card_values": [
+          {
+            "status_card_id": "card-status-tendency",
+            "status_list_id": "motion-state-list",
             "selected_option_id": "motion-state.uniform-rightward",
             "supplemental_text": null
           },
           {
-            "return_card_id": "card-return-resultant",
-            "property_card_id": "card-property-motion",
-            "role": "resultant",
+            "status_card_id": "card-status-resultant",
+            "status_list_id": "motion-state-list",
             "selected_option_id": "motion-state.uniform-rightward",
             "supplemental_text": null
           }
@@ -246,7 +264,7 @@
   "animation_results": [
     {
       "result_id": "result-001",
-      "created_at": "2026-11-11T10:02:05+08:00",
+      "created_at": "2026-11-12T10:02:05+08:00",
       "values": [
         {
           "scene_object_id": "scene-object-a",
@@ -262,15 +280,15 @@
       "scenario_input_id": "input-001",
       "prediction_version_id": "version-prediction-001",
       "result_id": "result-001",
-      "started_at": "2026-11-11T10:02:01+08:00",
-      "finished_at": "2026-11-11T10:02:05+08:00"
+      "started_at": "2026-11-12T10:02:01+08:00",
+      "finished_at": "2026-11-12T10:02:05+08:00"
     }
   ],
   "key_events": [
     {
       "event_id": "event-001",
       "kind": "prediction_saved",
-      "occurred_at": "2026-11-11T10:02:00+08:00",
+      "occurred_at": "2026-11-12T10:02:00+08:00",
       "related_version_id": "version-prediction-001",
       "related_run_id": "run-001",
       "note": null

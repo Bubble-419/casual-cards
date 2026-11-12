@@ -13,7 +13,7 @@ class SessionDocumentTests(unittest.TestCase):
     def test_card_type_has_exactly_five_categories(self) -> None:
         self.assertEqual(
             {item.value for item in CardType},
-            {"control_object", "property", "return", "link", "scene"},
+            {"control_object", "property", "status", "link", "scene"},
         )
 
     def test_example_round_trips_without_losing_data(self) -> None:
@@ -49,20 +49,60 @@ class SessionDocumentTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             SessionDocument.model_validate(payload)
 
-    def test_attribute_helper_does_not_fill_return_cards(self) -> None:
+    def test_attribute_helper_does_not_fill_status_cards(self) -> None:
         session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
         helper = next(
             value
             for value in session.current_draft.snapshot.card_field_values
             if value.purpose == "auxiliary"
         )
+        resultant_reference = next(
+            reference
+            for reference in session.current_draft.snapshot.property_card_values[
+                0
+            ].status_card_references
+            if reference.role == "resultant"
+        )
         resultant = next(
             value
-            for value in session.current_draft.snapshot.return_card_values
-            if value.role == "resultant"
+            for value in session.current_draft.snapshot.status_card_values
+            if value.status_card_id == resultant_reference.status_card_id
         )
 
         self.assertNotEqual(helper.supplemental_text, resultant.selected_option_id)
+
+    def test_property_card_lists_its_status_card_references(self) -> None:
+        session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
+        property_value = session.current_draft.snapshot.property_card_values[0]
+
+        self.assertEqual(property_value.status_list_id, "motion-state-list")
+        self.assertEqual(
+            {reference.role for reference in property_value.status_card_references},
+            {"tendency", "resultant"},
+        )
+
+    def test_status_card_must_reference_an_option_in_its_status_list(self) -> None:
+        session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
+        payload = session.model_dump(mode="json")
+        payload["current_draft"]["snapshot"]["status_card_values"][0][
+            "selected_option_id"
+        ] = "unknown-option"
+
+        with self.assertRaises(ValidationError):
+            SessionDocument.model_validate(payload)
+
+    def test_status_card_cannot_belong_to_two_property_cards(self) -> None:
+        session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
+        payload = session.model_dump(mode="json")
+        duplicated_property = dict(
+            payload["current_draft"]["snapshot"]["property_card_values"][0]
+        )
+        payload["current_draft"]["snapshot"]["property_card_values"].append(
+            duplicated_property
+        )
+
+        with self.assertRaises(ValidationError):
+            SessionDocument.model_validate(payload)
 
     def test_duplicate_card_identity_is_rejected(self) -> None:
         session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
