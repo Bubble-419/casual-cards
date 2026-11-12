@@ -1,14 +1,14 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "session_id": "session-example-001",
   "group_id": "group-example",
   "task_id": "first-case-no-added-horizontal-action",
   "registered_cards": [
-    {"card_id": "card-object-a-1", "card_type": "object", "marker_id": null},
-    {"card_id": "card-object-a-2", "card_type": "object", "marker_id": null},
-    {"card_id": "card-property-motion", "card_type": "property", "marker_id": null},
-    {"card_id": "card-return-tendency", "card_type": "return", "marker_id": null},
-    {"card_id": "card-return-resultant", "card_type": "return", "marker_id": null}
+    {"card_id": "card-control-object-a-1", "card_type": "control_object", "control_object_role": "object", "marker_id": null},
+    {"card_id": "card-control-object-a-2", "card_type": "control_object", "control_object_role": "object", "marker_id": null},
+    {"card_id": "card-property-motion", "card_type": "property", "control_object_role": null, "marker_id": null},
+    {"card_id": "card-return-tendency", "card_type": "return", "control_object_role": null, "marker_id": null},
+    {"card_id": "card-return-resultant", "card_type": "return", "control_object_role": null, "marker_id": null}
   ],
   "scene_objects": [
     {
@@ -25,7 +25,7 @@
       ],
       "card_states": [
         {
-          "card_id": "card-object-a-1",
+          "card_id": "card-control-object-a-1",
           "is_in_explanation": true,
           "pose": {
             "center": {"x": 0.22, "y": 0.55},
@@ -34,7 +34,7 @@
           }
         },
         {
-          "card_id": "card-object-a-2",
+          "card_id": "card-control-object-a-2",
           "is_in_explanation": true,
           "pose": {
             "center": {"x": 0.62, "y": 0.55},
@@ -71,8 +71,8 @@
         }
       ],
       "bindings": [
-        {"card_id": "card-object-a-1", "scene_object_id": "scene-object-a"},
-        {"card_id": "card-object-a-2", "scene_object_id": "scene-object-a"}
+        {"card_id": "card-control-object-a-1", "scene_object_id": "scene-object-a"},
+        {"card_id": "card-control-object-a-2", "scene_object_id": "scene-object-a"}
       ],
       "card_field_values": [
         {
@@ -109,7 +109,7 @@
       "connections": [
         {
           "connection_id": "connection-object-property",
-          "endpoint_a": {"card_id": "card-object-a-1", "port_id": "right"},
+          "endpoint_a": {"card_id": "card-control-object-a-1", "port_id": "right"},
           "endpoint_b": {"card_id": "card-property-motion", "port_id": "left"}
         }
       ]
@@ -152,7 +152,7 @@
         ],
         "card_states": [
           {
-            "card_id": "card-object-a-1",
+            "card_id": "card-control-object-a-1",
             "is_in_explanation": true,
             "pose": {
               "center": {"x": 0.22, "y": 0.55},
@@ -161,7 +161,7 @@
             }
           },
           {
-            "card_id": "card-object-a-2",
+            "card_id": "card-control-object-a-2",
             "is_in_explanation": true,
             "pose": {
               "center": {"x": 0.62, "y": 0.55},
@@ -198,8 +198,8 @@
           }
         ],
         "bindings": [
-          {"card_id": "card-object-a-1", "scene_object_id": "scene-object-a"},
-          {"card_id": "card-object-a-2", "scene_object_id": "scene-object-a"}
+          {"card_id": "card-control-object-a-1", "scene_object_id": "scene-object-a"},
+          {"card_id": "card-control-object-a-2", "scene_object_id": "scene-object-a"}
         ],
         "card_field_values": [
           {
@@ -236,7 +236,7 @@
         "connections": [
           {
             "connection_id": "connection-object-property",
-            "endpoint_a": {"card_id": "card-object-a-1", "port_id": "right"},
+            "endpoint_a": {"card_id": "card-control-object-a-1", "port_id": "right"},
             "endpoint_b": {"card_id": "card-property-motion", "port_id": "left"}
           }
         ]

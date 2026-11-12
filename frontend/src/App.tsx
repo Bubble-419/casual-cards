@@ -48,7 +48,7 @@ function CardWorkspace() {
         <CardControls />
       </header>
       <div className="placeholder-content">
-        <div className="paper-card card-object">物件卡</div>
+        <div className="paper-card card-object">控物件卡</div>
         <div className="paper-card card-property">属性卡</div>
         <div className="drop-hint">后续在这里模拟或识别实体卡</div>
       </div>

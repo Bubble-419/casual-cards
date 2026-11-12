@@ -1,75 +1,394 @@
-# D03 核心数据模型
+# D03 核心数据模型与 JSON 结构
 
-状态：第一版，待用户审阅。  
-范围：只规定已经确认的数据边界；R01 属性列表、R02 卡牌输入字段和 R03 拼接规则仍使用外部标识符，不在 D03 中提前定案。
+状态：第二版，待用户审阅。
 
-## 总体结构
+数据版本：`0.2`。
 
-```text
-SessionDocument
-├── registered_cards       实体卡身份与类型登记
-├── scene_objects          场景对象身份与当前共享名称
-├── current_draft          当前已确认的解释草稿
-├── scenario_inputs        各轮实际动画输入
-├── explanation_versions   “开始”前预测与最终提交快照
-├── animation_results      系统按物理规则生成的结果
-├── animation_runs         输入、预测版本与动画结果的对应关系
-└── key_events             预测保存、最终提交、故障中断
+范围：本文件展开程序实际读取的 JSON 结构。R01 属性列表、R02 情境输入字段和 R03 拼接规则尚未确认，因此 `field_id`、`option_id` 和 `port_id` 只作为引用位置，不在 D03 中定义正式取值。
+
+## 1. 顶层结构
+
+一次小组完成一个任务的数据保存为一个 `SessionDocument`：
+
+```json
+{
+  "schema_version": "0.2",
+  "session_id": "session-example-001",
+  "group_id": "group-example",
+  "task_id": "first-case-no-added-horizontal-action",
+  "registered_cards": [],
+  "scene_objects": [],
+  "current_draft": {
+    "updated_at": "2026-11-12T10:00:00+08:00",
+    "snapshot": {
+      "scene_object_names": [],
+      "card_states": [],
+      "bindings": [],
+      "card_field_values": [],
+      "return_card_values": [],
+      "connections": []
+    }
+  },
+  "scenario_inputs": [],
+  "explanation_versions": [],
+  "animation_results": [],
+  "animation_runs": [],
+  "key_events": []
+}
 ```
 
-`SessionDocument` 是按小组和任务保存、恢复及导出的完整单元。当前草稿可以更新；解释版本、已使用的情境输入和动画结果一经保存便视为历史记录，后续操作只能新增记录，不能回写旧记录。
+| 字段 | JSON 类型 | 必填 | 含义 |
+| --- | --- | --- | --- |
+| `schema_version` | string | 是 | 当前固定为 `0.2` |
+| `session_id` | string | 是 | 一次小组任务会话的稳定 ID |
+| `group_id` | string | 是 | 小组 ID |
+| `task_id` | string | 是 | 实验任务 ID |
+| `registered_cards` | `CardDefinition[]` | 是 | 本会话可识别的实体卡登记项 |
+| `scene_objects` | `SceneObject[]` | 是 | 动画中的人或物 |
+| `current_draft` | `ExplanationDraft` | 是 | 当前可修改解释 |
+| `scenario_inputs` | `ScenarioInput[]` | 是 | 各次实际动画输入 |
+| `explanation_versions` | `ExplanationVersion[]` | 是 | 运行前预测和最终提交版本 |
+| `animation_results` | `AnimationResult[]` | 是 | 系统计算的动画结果 |
+| `animation_runs` | `AnimationRun[]` | 是 | 输入、预测版本和结果的对应关系 |
+| `key_events` | `KeyEvent[]` | 是 | 少量关键节点记录 |
 
-## 关键对象
+## 2. 卡牌登记：`CardDefinition`
 
-| 数据对象 | 保存内容 | 明确不承担的职责 |
+“实体卡”是所有物理卡牌的统称，不是 `card_type` 的一个取值。`card_type` 只有五种：
+
+```text
+control_object  控物件卡
+property        属性卡
+return          物件归位卡
+link            联动卡
+scene           场景卡
+```
+
+控物件卡示例：
+
+```json
+{
+  "card_id": "card-control-object-a-1",
+  "card_type": "control_object",
+  "control_object_role": "object",
+  "marker_id": 101
+}
+```
+
+其他类型示例：
+
+```json
+{
+  "card_id": "card-property-motion",
+  "card_type": "property",
+  "control_object_role": null,
+  "marker_id": 201
+}
+```
+
+| 字段 | JSON 类型 | 必填 | 规则 |
+| --- | --- | --- | --- |
+| `card_id` | string | 是 | 每张实体卡的稳定身份 |
+| `card_type` | enum string | 是 | 只能是上述五种类型 |
+| `control_object_role` | `"control" \| "object" \| null` | 条件必填 | 控物件卡必须填写；其他卡必须为 `null` 或省略 |
+| `marker_id` | integer 或 null | 否 | 摄像头识别标记；鼠标模拟阶段可为空 |
+
+`control_object_role` 是控物件卡自身的属性，不是属性卡。它区分同一种控物件卡当前被定义为控件还是物件。
+
+## 3. 场景对象：`SceneObject`
+
+```json
+{
+  "scene_object_id": "scene-object-a",
+  "display_name": "物体A",
+  "scene_asset_id": "slider-a"
+}
+```
+
+| 字段 | JSON 类型 | 必填 | 含义 |
+| --- | --- | --- | --- |
+| `scene_object_id` | string | 是 | 对象稳定身份，不随改名变化 |
+| `display_name` | string | 是 | 所有绑定该对象的控物件卡共享的当前名称 |
+| `scene_asset_id` | string | 是 | 动画中对应的人物或物体资源 |
+
+控物件卡身份和场景对象身份必须分开。两张控物件卡可以通过两条 `CardBinding` 指向同一个 `scene_object_id`。
+
+## 4. 卡牌位置：`CardState` 与 `CardPose`
+
+```json
+{
+  "card_id": "card-control-object-a-1",
+  "is_in_explanation": true,
+  "pose": {
+    "center": {"x": 0.22, "y": 0.55},
+    "rotation_degrees": 0,
+    "input_source": "mouse_simulation"
+  }
+}
+```
+
+| 字段 | JSON 类型 | 必填 | 规则 |
+| --- | --- | --- | --- |
+| `card_id` | string | 是 | 引用 `registered_cards[].card_id` |
+| `is_in_explanation` | boolean | 是 | `false` 表示移出当前解释，但可保留填写内容 |
+| `pose.center.x/y` | number | 是 | 卡牌中心在操作区的归一化坐标，范围 `0–1` |
+| `pose.rotation_degrees` | number | 是 | 几何朝向；不会改变卡牌内容含义 |
+| `pose.input_source` | enum string | 是 | `mouse_simulation` 或 `camera` |
+
+## 5. 对象绑定：`CardBinding`
+
+```json
+{
+  "card_id": "card-control-object-a-1",
+  "scene_object_id": "scene-object-a"
+}
+```
+
+只有 `card_type = "control_object"` 的卡可以建立对象绑定。`card_id` 和 `scene_object_id` 都是引用，不复制对象名称；因此场景对象改名后，所有当前绑定卡可以同步显示新名称。
+
+## 6. 普通填写内容：`CardFieldValue`
+
+```json
+{
+  "card_id": "card-property-motion",
+  "field_id": "property-reference",
+  "purpose": "explanation",
+  "selected_option_ids": ["motion-state"],
+  "supplemental_text": "用户补充说明"
+}
+```
+
+| 字段 | JSON 类型 | 必填 | 规则 |
+| --- | --- | --- | --- |
+| `card_id` | string | 是 | 内容所属实体卡 |
+| `field_id` | string | 是 | 字段定义 ID；具体清单由后续规则确定 |
+| `purpose` | `"explanation" \| "auxiliary"` | 是 | 区分结构化解释和属性卡辅助信息 |
+| `selected_option_ids` | string[] | 是 | 用户确认的结构化选项，可为空数组 |
+| `supplemental_text` | string 或 null | 否 | 自由文字，保存但不进入自动判定 |
+
+实际动画条件不放在 `CardFieldValue` 中，而单独保存在 `ScenarioInput`，从数据结构上防止辅助信息或预测覆盖动画输入。
+
+## 7. 物件归位卡内容：`ReturnCardValue`
+
+```json
+{
+  "return_card_id": "card-return-resultant",
+  "property_card_id": "card-property-motion",
+  "role": "resultant",
+  "selected_option_id": "motion-state.uniform-rightward",
+  "supplemental_text": null
+}
+```
+
+| 字段 | JSON 类型 | 必填 | 规则 |
+| --- | --- | --- | --- |
+| `return_card_id` | string | 是 | 必须引用物件归位卡 |
+| `property_card_id` | string | 是 | 必须引用属性卡 |
+| `role` | `"tendency" \| "resultant"` | 是 | 明确两种角色，不依靠位置猜测 |
+| `selected_option_id` | string 或 null | 是 | 用户从属性列表选择；草稿未填写时可为 `null` |
+| `supplemental_text` | string 或 null | 否 | 自由文字，不判定正确性 |
+
+物件归位卡独立保存。属性卡的 `purpose = "auxiliary"` 内容不能自动生成或改写这里的 `selected_option_id`。
+
+## 8. 卡牌连接：`CardConnection`
+
+```json
+{
+  "connection_id": "connection-object-property",
+  "endpoint_a": {
+    "card_id": "card-control-object-a-1",
+    "port_id": "right"
+  },
+  "endpoint_b": {
+    "card_id": "card-property-motion",
+    "port_id": "left"
+  }
+}
+```
+
+`endpoint_a` 和 `endpoint_b` 都由 `card_id + port_id` 组成。这里只保存已经稳定建立的连接；靠近和候选连接不保存。哪些端口可以相连、连接是否具有语义方向，由 R03 决定，示例中的 `left/right` 不是最终端口表。
+
+## 9. 完整解释快照：`ExplanationSnapshot`
+
+```json
+{
+  "scene_object_names": [
+    {"scene_object_id": "scene-object-a", "display_name": "物体A"}
+  ],
+  "card_states": [],
+  "bindings": [],
+  "card_field_values": [],
+  "return_card_values": [],
+  "connections": []
+}
+```
+
+| 字段 | 元素类型 | 作用 |
 | --- | --- | --- |
-| `CardDefinition` | 实体卡稳定 ID、六种既有类型之一、可选识别标记 | 不保存场景对象身份 |
-| `SceneObject` | 场景对象稳定 ID、共享名称、场景资源 ID | 不保存某张卡独有的名称 |
-| `CardBinding` | 卡牌 ID → 场景对象 ID | 不等于卡牌接口连接 |
-| `CardState` | 卡牌是否在当前解释中、位置、角度和输入来源 | 旋转不改变内容含义 |
-| `CardFieldValue` | 已确认的结构化选择、补充文字及“解释／辅助”用途 | 不保存实际动画输入；自由文字不判分 |
-| `ReturnCardValue` | 物件归位卡引用的属性卡、Tendency／Resultant 角色和用户所选条目 | 不从属性卡辅助信息自动生成 |
-| `CardConnection` | 两个稳定连接端点 | 不保存靠近或候选连接；合法性由 R03 决定 |
-| `ScenarioInput` | 系统给定和用户设置的实际条件 | 不读取用户预测作为输入 |
-| `ExplanationVersion` | 预测或最终提交时的完整解释快照及对应输入 ID | 保存后不可被草稿更新覆盖 |
-| `AnimationResult` | 系统按实际输入算出的结果字段 | 不等于用户填写的 Resultant |
+| `scene_object_names` | `SceneObjectNameSnapshot[]` | 冻结保存当时的对象名称，后续改名不改写历史 |
+| `card_states` | `CardState[]` | 保存当时参与解释的卡牌和位置 |
+| `bindings` | `CardBinding[]` | 保存当时的对象绑定 |
+| `card_field_values` | `CardFieldValue[]` | 保存已确认的普通填写内容 |
+| `return_card_values` | `ReturnCardValue[]` | 保存 Tendency／Resultant |
+| `connections` | `CardConnection[]` | 保存稳定连接结构 |
 
-## 解释快照
+当前草稿与历史版本共用这一结构。区别是草稿可更新，而历史版本创建后不可修改。
 
-当前草稿和每个解释版本使用同一种 `ExplanationSnapshot`：
+## 10. 当前草稿：`ExplanationDraft`
 
-- `scene_object_names`：保存当时的对象名称，保证以后重命名不会改写历史显示。
-- `card_states`：当时参与解释的卡牌及位置。
-- `bindings`：多张物件卡／控件卡可以同时绑定同一个场景对象。
-- `card_field_values`：只纳入已确认编辑；结构化选择与自由文字分开保存。
-- `return_card_values`：物件归位卡由用户独立填写，并明确区分 Tendency 与 Resultant。
-- `connections`：只保存已经稳定建立的合法连接。
+```json
+{
+  "updated_at": "2026-11-12T10:02:00+08:00",
+  "snapshot": {
+    "scene_object_names": [],
+    "card_states": [],
+    "bindings": [],
+    "card_field_values": [],
+    "return_card_values": [],
+    "connections": []
+  }
+}
+```
 
-## 三类容易混淆的数据
+只有用户确认的编辑、稳定连接和稳定断开才能更新草稿。编辑面板中尚未确认的输入不进入该 JSON。
+
+## 11. 动画实际输入：`ScenarioInput`
+
+```json
+{
+  "input_id": "input-001",
+  "scenario_id": "first-case-no-added-horizontal-action",
+  "created_at": "2026-11-12T10:00:00+08:00",
+  "conditions": [
+    {
+      "condition_id": "given-initial-motion",
+      "origin": "system_given",
+      "target_scene_object_id": "scene-object-a",
+      "source_card_id": null,
+      "field_id": "initial-horizontal-motion",
+      "selected_option_id": "uniform-rightward"
+    }
+  ]
+}
+```
+
+| 字段 | JSON 类型 | 必填 | 规则 |
+| --- | --- | --- | --- |
+| `input_id` | string | 是 | 一组实际输入的稳定 ID |
+| `scenario_id` | string | 是 | 对应有限场景定义 |
+| `created_at` | ISO 8601 string | 是 | 输入保存时间 |
+| `conditions` | `ScenarioCondition[]` | 是 | 系统给定或用户设置的条件 |
+| `condition_id` | string | 是 | 单条条件 ID |
+| `origin` | `"system_given" \| "user_set"` | 是 | 条件来源 |
+| `target_scene_object_id` | string 或 null | 否 | 条件所指向的场景对象 |
+| `source_card_id` | string 或 null | 条件必填 | 用户设置条件时必须引用已登记并已绑定的控物件卡；系统给定时可为空 |
+| `field_id` | string | 是 | 输入字段定义 ID，由 R02 确定 |
+| `selected_option_id` | string | 是 | 实际输入值，由 R02 确定 |
+
+## 12. 解释版本：`ExplanationVersion`
+
+```json
+{
+  "version_id": "version-prediction-001",
+  "kind": "prediction",
+  "created_at": "2026-11-12T10:02:00+08:00",
+  "scenario_input_id": "input-001",
+  "snapshot": {
+    "scene_object_names": [],
+    "card_states": [],
+    "bindings": [],
+    "card_field_values": [],
+    "return_card_values": [],
+    "connections": []
+  }
+}
+```
+
+`kind` 只能是 `prediction` 或 `final_submission`。每次点击“开始”前新增预测版本，最终提交时新增最终版本。版本引用对应的 `scenario_input_id`，但不能修改那份输入。
+
+## 13. 动画结果与运行对应
+
+`AnimationResult`：
+
+```json
+{
+  "result_id": "result-001",
+  "created_at": "2026-11-12T10:02:05+08:00",
+  "values": [
+    {
+      "scene_object_id": "scene-object-a",
+      "property_id": "horizontal-motion",
+      "option_id": "uniform-rightward"
+    }
+  ]
+}
+```
+
+`AnimationRun`：
+
+```json
+{
+  "run_id": "run-001",
+  "scenario_input_id": "input-001",
+  "prediction_version_id": "version-prediction-001",
+  "result_id": "result-001",
+  "started_at": "2026-11-12T10:02:01+08:00",
+  "finished_at": "2026-11-12T10:02:05+08:00"
+}
+```
+
+运行记录只建立三者的引用关系：
 
 ```text
 ScenarioInput ──驱动──> AnimationResult
        │
-       └──由 ID 关联──> ExplanationVersion（用户预测）
+       └──对应──> ExplanationVersion（用户预测）
 ```
 
-- 情境输入控制动画。
-- 解释版本记录用户当时怎样预测和解释。
-- 动画结果记录系统实际播放出的结果。
-- 修改解释版本中的关系或 Resultant，不能改变同一个情境输入对应的动画结果。
+修改用户预测不会改变同一 `ScenarioInput` 对应的物理动画结果。
 
-## 尚未由 D03 决定的内容
+## 14. 关键节点：`KeyEvent`
 
-- 属性列表与 Tendency／Resultant 的最终选项和值域。
-- 用户设置拉力方向、大小等情境输入时所使用的具体字段。
-- 卡牌端口名称、合法连接矩阵及语义方向。
+```json
+{
+  "event_id": "event-001",
+  "kind": "prediction_saved",
+  "occurred_at": "2026-11-12T10:02:00+08:00",
+  "related_version_id": "version-prediction-001",
+  "related_run_id": "run-001",
+  "note": null
+}
+```
+
+`kind` 第一版只有：
+
+- `prediction_saved`
+- `final_submitted`
+- `system_interrupted`
+
+不记录每次移动、点击、编辑和连接变化。
+
+## 15. 当前程序校验的引用规则
+
+- 所有 ID 在各自集合内必须唯一。
+- 控物件卡必须填写 `control_object_role`；其他卡不得填写。
+- 只有控物件卡可以绑定场景对象。
+- 物件归位卡内容必须引用物件归位卡和属性卡。
+- 用户设置的情境条件必须引用已登记的来源卡。
+- 解释版本必须引用已存在的情境输入。
+- 动画运行必须引用预测版本，不能引用最终提交版本。
+- 动画结果中的对象必须存在。
+- 关键节点只能引用已存在的版本和运行。
+- JSON 中出现模型未声明的额外字段会校验失败，避免悄悄保存未知含义。
+
+## 16. 尚未由 D03 决定的取值
+
+- 属性列表以及 Tendency／Resultant 的最终选项。
+- 用户设置方向、大小等情境输入时的正式 `field_id` 与 `option_id`。
+- 正式端口名称、合法连接矩阵和语义方向。
 - 有限案例的正确性检查规则。
 
-示例中的 `field_id`、`option_id` 和 `port_id` 只是可替换引用；R01–R04 确认后才能成为正式规则。
-
-## 验证示例
-
-示例文件：[first_case_session.json](../backend/examples/first_case_session.json)。它表达“系统给定 A 向右匀速、无新增水平作用”的一次运行前预测及结果记录，目的是验证保存、载入和还原关系，不是最终教学选项表。
+完整可运行示例见 [first_case_session.json](../backend/examples/first_case_session.json)。它用于验证结构保存和引用关系，不等于最终教学选项表。
 
 ```bash
 cd backend

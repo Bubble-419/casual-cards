@@ -12,12 +12,16 @@ class DomainModel(BaseModel):
 
 
 class CardType(StrEnum):
-    OBJECT = "object"
-    CONTROL = "control"
+    CONTROL_OBJECT = "control_object"
     PROPERTY = "property"
     RETURN = "return"
     LINK = "link"
     SCENE = "scene"
+
+
+class ControlObjectRole(StrEnum):
+    CONTROL = "control"
+    OBJECT = "object"
 
 
 class InputSource(StrEnum):
@@ -65,7 +69,17 @@ class CardPose(DomainModel):
 class CardDefinition(DomainModel):
     card_id: str
     card_type: CardType
+    control_object_role: ControlObjectRole | None = None
     marker_id: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_control_object_role(self) -> CardDefinition:
+        if self.card_type is CardType.CONTROL_OBJECT:
+            if self.control_object_role is None:
+                raise ValueError("control-object card requires a control-object role")
+        elif self.control_object_role is not None:
+            raise ValueError("only a control-object card can have a control-object role")
+        return self
 
 
 class SceneObject(DomainModel):
@@ -94,7 +108,7 @@ class CardFieldValue(DomainModel):
     card_id: str
     field_id: str
     purpose: FieldPurpose
-    selected_option_ids: list[str] = Field(default_factory=list)
+    selected_option_ids: list[str]
     supplemental_text: str | None = None
 
 
@@ -102,7 +116,7 @@ class ReturnCardValue(DomainModel):
     return_card_id: str
     property_card_id: str
     role: ReturnRole
-    selected_option_id: str | None = None
+    selected_option_id: str | None
     supplemental_text: str | None = None
 
 
@@ -186,7 +200,7 @@ class KeyEvent(DomainModel):
 
 
 class SessionDocument(DomainModel):
-    schema_version: Literal["0.1"]
+    schema_version: Literal["0.2"]
     session_id: str
     group_id: str
     task_id: str
@@ -212,7 +226,8 @@ class SessionDocument(DomainModel):
 
         card_types = {card.card_id: card.card_type for card in self.registered_cards}
         scene_object_ids = set(scene_object_id_values)
-        scenario_input_ids = {item.input_id for item in self.scenario_inputs}
+        scenario_inputs_by_id = {item.input_id: item for item in self.scenario_inputs}
+        scenario_input_ids = set(scenario_inputs_by_id)
         version_kinds = {item.version_id: item.kind for item in self.explanation_versions}
         result_ids = {item.result_id for item in self.animation_results}
         run_ids = {item.run_id for item in self.animation_runs}
@@ -236,6 +251,16 @@ class SessionDocument(DomainModel):
         for version in self.explanation_versions:
             if version.scenario_input_id not in scenario_input_ids:
                 raise ValueError("explanation version references an unknown scenario input")
+            bound_card_ids = {binding.card_id for binding in version.snapshot.bindings}
+            version_input = scenario_inputs_by_id[version.scenario_input_id]
+            for condition in version_input.conditions:
+                if (
+                    condition.origin is ConditionOrigin.USER_SET
+                    and condition.source_card_id not in bound_card_ids
+                ):
+                    raise ValueError(
+                        "user-set condition source card must be bound in the explanation version"
+                    )
 
         for result in self.animation_results:
             if any(value.scene_object_id not in scene_object_ids for value in result.values):
@@ -283,8 +308,8 @@ class SessionDocument(DomainModel):
                 raise ValueError("binding references an unknown card")
             if binding.scene_object_id not in scene_object_ids:
                 raise ValueError("binding references an unknown scene object")
-            if card_types[binding.card_id] not in {CardType.OBJECT, CardType.CONTROL}:
-                raise ValueError("only object and control cards can bind scene objects")
+            if card_types[binding.card_id] is not CardType.CONTROL_OBJECT:
+                raise ValueError("only control-object cards can bind scene objects")
         for field_value in snapshot.card_field_values:
             if field_value.card_id not in card_types:
                 raise ValueError("card field value references an unknown card")
