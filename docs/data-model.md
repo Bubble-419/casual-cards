@@ -1,8 +1,8 @@
 # D03 核心数据模型与 JSON 结构
 
-状态：第三版，待用户审阅。
+状态：第四版，待用户审阅。
 
-数据版本：`0.3`。
+数据版本：`0.4`。
 
 范围：本文件展开程序实际读取的 JSON 结构。R01 属性列表、R02 情境输入字段和 R03 拼接规则尚未确认，因此 `field_id`、`option_id` 和 `port_id` 只作为引用位置，不在 D03 中定义正式取值。
 
@@ -12,7 +12,7 @@
 
 ```json
 {
-  "schema_version": "0.3",
+  "schema_version": "0.4",
   "session_id": "session-example-001",
   "group_id": "group-example",
   "task_id": "first-case-no-added-horizontal-action",
@@ -25,6 +25,7 @@
       "scene_object_names": [],
       "card_states": [],
       "bindings": [],
+      "control_object_card_values": [],
       "card_field_values": [],
       "property_card_values": [],
       "status_card_values": [],
@@ -41,7 +42,7 @@
 
 | 字段 | JSON 类型 | 必填 | 含义 |
 | --- | --- | --- | --- |
-| `schema_version` | string | 是 | 当前固定为 `0.3` |
+| `schema_version` | string | 是 | 当前固定为 `0.4` |
 | `session_id` | string | 是 | 一次小组任务会话的稳定 ID |
 | `group_id` | string | 是 | 小组 ID |
 | `task_id` | string | 是 | 实验任务 ID |
@@ -73,7 +74,6 @@ scene           场景卡
 {
   "card_id": "card-control-object-a-1",
   "card_type": "control_object",
-  "control_object_role": "object",
   "marker_id": 101
 }
 ```
@@ -84,7 +84,6 @@ scene           场景卡
 {
   "card_id": "card-property-motion",
   "card_type": "property",
-  "control_object_role": null,
   "marker_id": 201
 }
 ```
@@ -93,10 +92,9 @@ scene           场景卡
 | --- | --- | --- | --- |
 | `card_id` | string | 是 | 每张实体卡的稳定身份 |
 | `card_type` | enum string | 是 | 只能是上述五种类型 |
-| `control_object_role` | `"control" \| "object" \| null` | 条件必填 | 控物件卡必须填写；其他卡必须为 `null` 或省略 |
-| `marker_id` | integer 或 null | 否 | 摄像头识别标记；鼠标模拟阶段可为空 |
+| `marker_id` | integer 或 null | 否 | 摄像头识别标记；鼠标模拟阶段可为空；所有非空值在本会话中必须唯一 |
 
-`control_object_role` 是控物件卡自身的属性，不是属性卡。它区分同一种控物件卡当前被定义为控件还是物件。
+控物件卡的控件／物件角色不在登记项中固定保存，而是在每份 `ExplanationSnapshot` 中保存。这样同一张实体卡可以在不同解释版本中改变角色。
 
 ## 3. 场景对象：`SceneObject`
 
@@ -116,7 +114,23 @@ scene           场景卡
 
 控物件卡身份和场景对象身份必须分开。两张控物件卡可以通过两条 `CardBinding` 指向同一个 `scene_object_id`。
 
-## 4. 卡牌位置：`CardState` 与 `CardPose`
+## 4. 控物件卡角色：`ControlObjectCardValue`
+
+```json
+{
+  "control_object_card_id": "card-control-object-a-1",
+  "role": "object"
+}
+```
+
+| 字段 | JSON 类型 | 必填 | 规则 |
+| --- | --- | --- | --- |
+| `control_object_card_id` | string | 是 | 引用控物件卡；该卡必须在当前解释中 |
+| `role` | `"control" \| "object"` | 是 | 此卡在当前解释中的角色 |
+
+每个参与当前解释的控物件卡必须恰有一条角色记录；未参与解释的控物件卡不记录角色。同一 `card_id` 在草稿、预测版本和最终提交版本中可分别取不同角色。
+
+## 5. 卡牌位置：`CardState` 与 `CardPose`
 
 ```json
 {
@@ -138,7 +152,7 @@ scene           场景卡
 | `pose.rotation_degrees` | number | 是 | 几何朝向；不会改变卡牌内容含义 |
 | `pose.input_source` | enum string | 是 | `mouse_simulation` 或 `camera` |
 
-## 5. 对象绑定：`CardBinding`
+## 6. 对象绑定：`CardBinding`
 
 ```json
 {
@@ -149,7 +163,7 @@ scene           场景卡
 
 只有 `card_type = "control_object"` 的卡可以建立对象绑定。`card_id` 和 `scene_object_id` 都是引用，不复制对象名称；因此场景对象改名后，所有当前绑定卡可以同步显示新名称。
 
-## 6. 普通填写内容：`CardFieldValue`
+## 7. 普通填写内容：`CardFieldValue`
 
 ```json
 {
@@ -171,7 +185,7 @@ scene           场景卡
 
 实际动画条件不放在 `CardFieldValue` 中，而单独保存在 `ScenarioInput`，从数据结构上防止辅助信息或预测覆盖动画输入。
 
-## 7. 状态列表：`StatusListDefinition`
+## 8. 状态列表：`StatusListDefinition`
 
 状态列表是某个属性允许引用的状态选项目录。它不是用户解释草稿，而是任务定义的一部分；会话保存一份列表快照，保证列表以后修改时，旧版本仍能按原选项解释。
 
@@ -202,7 +216,7 @@ scene           场景卡
 
 R01 尚未确认完整选项，因此示例里的选项只用于验证引用结构，不是最终状态列表。
 
-## 8. 属性卡内容与关联：`PropertyCardValue`
+## 9. 属性卡内容与关联：`PropertyCardValue`
 
 属性卡明确保存自己关联的状态列表，以及关联的物件归位卡（StatusCard）：
 
@@ -235,7 +249,7 @@ R01 尚未确认完整选项，因此示例里的选项只用于验证引用结�
 
 这里是“属性卡关联哪些 StatusCard”的唯一来源；不再把 `property_card_id` 反向藏在 StatusCard 内容中，避免双向字段不一致。
 
-## 9. 物件归位卡内容：`StatusCardValue`
+## 10. 物件归位卡内容：`StatusCardValue`
 
 英文统一使用 `StatusCard`，中文界面和研究材料继续称“物件归位卡”。StatusCard 表示对某个状态列表选项的引用：
 
@@ -257,7 +271,7 @@ R01 尚未确认完整选项，因此示例里的选项只用于验证引用结�
 
 StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_references` 中；StatusCard 自身只负责引用列表及其选项。属性卡辅助信息不能自动生成或改写 `selected_option_id`。
 
-## 10. 卡牌连接：`CardConnection`
+## 11. 卡牌连接：`CardConnection`
 
 ```json
 {
@@ -275,7 +289,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
 
 `endpoint_a` 和 `endpoint_b` 都由 `card_id + port_id` 组成。这里只保存已经稳定建立的连接；靠近和候选连接不保存。哪些端口可以相连、连接是否具有语义方向，由 R03 决定，示例中的 `left/right` 不是最终端口表。
 
-## 11. 完整解释快照：`ExplanationSnapshot`
+## 12. 完整解释快照：`ExplanationSnapshot`
 
 ```json
 {
@@ -284,6 +298,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
   ],
   "card_states": [],
   "bindings": [],
+  "control_object_card_values": [],
   "card_field_values": [],
   "property_card_values": [],
   "status_card_values": [],
@@ -296,6 +311,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
 | `scene_object_names` | `SceneObjectNameSnapshot[]` | 冻结保存当时的对象名称，后续改名不改写历史 |
 | `card_states` | `CardState[]` | 保存当时参与解释的卡牌和位置 |
 | `bindings` | `CardBinding[]` | 保存当时的对象绑定 |
+| `control_object_card_values` | `ControlObjectCardValue[]` | 保存参与解释的控物件卡在当时扮演的控件／物件角色 |
 | `card_field_values` | `CardFieldValue[]` | 保存已确认的普通填写内容 |
 | `property_card_values` | `PropertyCardValue[]` | 保存属性、状态列表和关联 StatusCard |
 | `status_card_values` | `StatusCardValue[]` | 保存各 StatusCard 引用的状态选项 |
@@ -303,7 +319,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
 
 当前草稿与历史版本共用这一结构。区别是草稿可更新，而历史版本创建后不可修改。
 
-## 12. 当前草稿：`ExplanationDraft`
+## 13. 当前草稿：`ExplanationDraft`
 
 ```json
 {
@@ -312,6 +328,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
     "scene_object_names": [],
     "card_states": [],
     "bindings": [],
+    "control_object_card_values": [],
     "card_field_values": [],
     "property_card_values": [],
     "status_card_values": [],
@@ -322,7 +339,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
 
 只有用户确认的编辑、稳定连接和稳定断开才能更新草稿。编辑面板中尚未确认的输入不进入该 JSON。
 
-## 13. 动画实际输入：`ScenarioInput`
+## 14. 动画实际输入：`ScenarioInput`
 
 ```json
 {
@@ -355,7 +372,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
 | `field_id` | string | 是 | 输入字段定义 ID，由 R02 确定 |
 | `selected_option_id` | string | 是 | 实际输入值，由 R02 确定 |
 
-## 14. 解释版本：`ExplanationVersion`
+## 15. 解释版本：`ExplanationVersion`
 
 ```json
 {
@@ -377,7 +394,7 @@ StatusCard 的 Tendency／Resultant 角色保存在属性卡的 `status_card_ref
 
 `kind` 只能是 `prediction` 或 `final_submission`。每次点击“开始”前新增预测版本，最终提交时新增最终版本。版本引用对应的 `scenario_input_id`，但不能修改那份输入。
 
-## 15. 动画结果与运行对应
+## 16. 动画结果与运行对应
 
 `AnimationResult`：
 
@@ -418,7 +435,7 @@ ScenarioInput ──驱动──> AnimationResult
 
 修改用户预测不会改变同一 `ScenarioInput` 对应的物理动画结果。
 
-## 16. 关键节点：`KeyEvent`
+## 17. 关键节点：`KeyEvent`
 
 ```json
 {
@@ -439,10 +456,10 @@ ScenarioInput ──驱动──> AnimationResult
 
 不记录每次移动、点击、编辑和连接变化。
 
-## 17. 当前程序校验的引用规则
+## 18. 当前程序校验的引用规则
 
-- 所有 ID 在各自集合内必须唯一。
-- 控物件卡必须填写 `control_object_role`；其他卡不得填写。
+- 所有 ID 在各自集合内必须唯一；所有非空 `marker_id` 在已登记卡牌中必须唯一。
+- 每份解释中，每张参与解释的控物件卡必须恰有一条控物件角色记录；角色可以在不同解释中改变。
 - 只有控物件卡可以绑定场景对象。
 - 状态列表 ID 和每个列表内的选项 ID 必须唯一。
 - 属性卡必须直接列出关联的 StatusCard，并引用与属性一致的状态列表。
@@ -455,7 +472,7 @@ ScenarioInput ──驱动──> AnimationResult
 - 关键节点只能引用已存在的版本和运行。
 - JSON 中出现模型未声明的额外字段会校验失败，避免悄悄保存未知含义。
 
-## 18. 尚未由 D03 决定的取值
+## 19. 尚未由 D03 决定的取值
 
 - 属性列表以及 Tendency／Resultant 的最终选项。
 - 用户设置方向、大小等情境输入时的正式 `field_id` 与 `option_id`。

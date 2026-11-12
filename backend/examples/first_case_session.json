@@ -1,14 +1,14 @@
 {
-  "schema_version": "0.3",
+  "schema_version": "0.4",
   "session_id": "session-example-001",
   "group_id": "group-example",
   "task_id": "first-case-no-added-horizontal-action",
   "registered_cards": [
-    {"card_id": "card-control-object-a-1", "card_type": "control_object", "control_object_role": "object", "marker_id": null},
-    {"card_id": "card-control-object-a-2", "card_type": "control_object", "control_object_role": "object", "marker_id": null},
-    {"card_id": "card-property-motion", "card_type": "property", "control_object_role": null, "marker_id": null},
-    {"card_id": "card-status-tendency", "card_type": "status", "control_object_role": null, "marker_id": null},
-    {"card_id": "card-status-resultant", "card_type": "status", "control_object_role": null, "marker_id": null}
+    {"card_id": "card-control-object-a-1", "card_type": "control_object", "marker_id": null},
+    {"card_id": "card-control-object-a-2", "card_type": "control_object", "marker_id": null},
+    {"card_id": "card-property-motion", "card_type": "property", "marker_id": null},
+    {"card_id": "card-status-tendency", "card_type": "status", "marker_id": null},
+    {"card_id": "card-status-resultant", "card_type": "status", "marker_id": null}
   ],
   "scene_objects": [
     {
@@ -87,6 +87,10 @@
       "bindings": [
         {"card_id": "card-control-object-a-1", "scene_object_id": "scene-object-a"},
         {"card_id": "card-control-object-a-2", "scene_object_id": "scene-object-a"}
+      ],
+      "control_object_card_values": [
+        {"control_object_card_id": "card-control-object-a-1", "role": "object"},
+        {"control_object_card_id": "card-control-object-a-2", "role": "object"}
       ],
       "card_field_values": [
         {
@@ -216,6 +220,10 @@
         "bindings": [
           {"card_id": "card-control-object-a-1", "scene_object_id": "scene-object-a"},
           {"card_id": "card-control-object-a-2", "scene_object_id": "scene-object-a"}
+        ],
+        "control_object_card_values": [
+          {"control_object_card_id": "card-control-object-a-1", "role": "object"},
+          {"control_object_card_id": "card-control-object-a-2", "role": "object"}
         ],
         "card_field_values": [
           {

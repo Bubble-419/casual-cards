@@ -112,27 +112,53 @@ class SessionDocumentTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             SessionDocument.model_validate(payload)
 
-    def test_control_object_card_requires_its_role_attribute(self) -> None:
-        with self.assertRaises(ValidationError):
-            CardDefinition.model_validate(
-                {
-                    "card_id": "card-a",
-                    "card_type": "control_object",
-                    "control_object_role": None,
-                    "marker_id": None,
-                }
-            )
+    def test_non_null_marker_id_must_be_unique(self) -> None:
+        session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
+        payload = session.model_dump(mode="json")
+        payload["registered_cards"][0]["marker_id"] = 101
+        payload["registered_cards"][1]["marker_id"] = 101
 
-    def test_other_card_types_cannot_have_a_control_object_role(self) -> None:
+        with self.assertRaises(ValidationError):
+            SessionDocument.model_validate(payload)
+
+    def test_card_definition_does_not_fix_a_control_object_role(self) -> None:
         with self.assertRaises(ValidationError):
             CardDefinition.model_validate(
                 {
-                    "card_id": "property-card",
-                    "card_type": "property",
+                    "card_id": "control-object-card",
+                    "card_type": "control_object",
                     "control_object_role": "object",
                     "marker_id": None,
                 }
             )
+
+    def test_each_active_control_object_card_requires_one_role(self) -> None:
+        session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
+        payload = session.model_dump(mode="json")
+        payload["current_draft"]["snapshot"]["control_object_card_values"].pop()
+
+        with self.assertRaises(ValidationError):
+            SessionDocument.model_validate(payload)
+
+    def test_a_control_object_card_can_change_role_between_explanations(self) -> None:
+        session = SessionDocument.model_validate_json(EXAMPLE_PATH.read_text())
+        payload = session.model_dump(mode="json")
+        version_role = payload["explanation_versions"][0]["snapshot"][
+            "control_object_card_values"
+        ][0]
+        version_role["role"] = "control"
+
+        restored = SessionDocument.model_validate(payload)
+        self.assertEqual(
+            restored.current_draft.snapshot.control_object_card_values[0].role,
+            "object",
+        )
+        self.assertEqual(
+            restored.explanation_versions[0]
+            .snapshot.control_object_card_values[0]
+            .role,
+            "control",
+        )
 
 
 if __name__ == "__main__":

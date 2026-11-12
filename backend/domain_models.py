@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Hashable, Sequence
 from datetime import datetime
 from enum import StrEnum
 from typing import Literal
@@ -69,17 +70,7 @@ class CardPose(DomainModel):
 class CardDefinition(DomainModel):
     card_id: str
     card_type: CardType
-    control_object_role: ControlObjectRole | None = None
     marker_id: int | None = Field(default=None, ge=0)
-
-    @model_validator(mode="after")
-    def validate_control_object_role(self) -> CardDefinition:
-        if self.card_type is CardType.CONTROL_OBJECT:
-            if self.control_object_role is None:
-                raise ValueError("control-object card requires a control-object role")
-        elif self.control_object_role is not None:
-            raise ValueError("only a control-object card can have a control-object role")
-        return self
 
 
 class SceneObject(DomainModel):
@@ -115,6 +106,11 @@ class SceneObjectNameSnapshot(DomainModel):
 class CardBinding(DomainModel):
     card_id: str
     scene_object_id: str
+
+
+class ControlObjectCardValue(DomainModel):
+    control_object_card_id: str
+    role: ControlObjectRole
 
 
 class CardFieldValue(DomainModel):
@@ -159,6 +155,7 @@ class ExplanationSnapshot(DomainModel):
     scene_object_names: list[SceneObjectNameSnapshot]
     card_states: list[CardState]
     bindings: list[CardBinding]
+    control_object_card_values: list[ControlObjectCardValue]
     card_field_values: list[CardFieldValue]
     property_card_values: list[PropertyCardValue]
     status_card_values: list[StatusCardValue]
@@ -225,7 +222,7 @@ class KeyEvent(DomainModel):
 
 
 class SessionDocument(DomainModel):
-    schema_version: Literal["0.3"]
+    schema_version: Literal["0.4"]
     session_id: str
     group_id: str
     task_id: str
@@ -244,11 +241,20 @@ class SessionDocument(DomainModel):
         card_ids = [card.card_id for card in self.registered_cards]
         scene_object_id_values = [item.scene_object_id for item in self.scene_objects]
         self._require_unique("registered card", card_ids)
+        self._require_unique(
+            "card marker",
+            [
+                card.marker_id
+                for card in self.registered_cards
+                if card.marker_id is not None
+            ],
+        )
         self._require_unique("scene object", scene_object_id_values)
         self._require_unique("scenario input", [item.input_id for item in self.scenario_inputs])
         self._require_unique("explanation version", [item.version_id for item in self.explanation_versions])
         self._require_unique("animation result", [item.result_id for item in self.animation_results])
         self._require_unique("animation run", [item.run_id for item in self.animation_runs])
+        self._require_unique("key event", [item.event_id for item in self.key_events])
         self._require_unique("status list", [item.status_list_id for item in self.status_lists])
 
         status_lists = {item.status_list_id: item for item in self.status_lists}
@@ -326,7 +332,7 @@ class SessionDocument(DomainModel):
         return self
 
     @staticmethod
-    def _require_unique(label: str, values: list[str]) -> None:
+    def _require_unique(label: str, values: Sequence[Hashable]) -> None:
         if len(values) != len(set(values)):
             raise ValueError(f"duplicate {label} id")
 
@@ -337,6 +343,18 @@ class SessionDocument(DomainModel):
         scene_object_ids: set[str],
         status_lists: dict[str, StatusListDefinition],
     ) -> None:
+        SessionDocument._require_unique(
+            "card state", [state.card_id for state in snapshot.card_states]
+        )
+        SessionDocument._require_unique(
+            "scene-object name", [name.scene_object_id for name in snapshot.scene_object_names]
+        )
+        SessionDocument._require_unique(
+            "card binding", [binding.card_id for binding in snapshot.bindings]
+        )
+        SessionDocument._require_unique(
+            "connection", [connection.connection_id for connection in snapshot.connections]
+        )
         for card_state in snapshot.card_states:
             if card_state.card_id not in card_types:
                 raise ValueError("snapshot references an unknown card")
@@ -350,6 +368,29 @@ class SessionDocument(DomainModel):
                 raise ValueError("binding references an unknown scene object")
             if card_types[binding.card_id] is not CardType.CONTROL_OBJECT:
                 raise ValueError("only control-object cards can bind scene objects")
+
+        active_control_object_card_ids = {
+            state.card_id
+            for state in snapshot.card_states
+            if state.is_in_explanation
+            and card_types[state.card_id] is CardType.CONTROL_OBJECT
+        }
+        role_card_ids = [
+            value.control_object_card_id
+            for value in snapshot.control_object_card_values
+        ]
+        SessionDocument._require_unique("control-object card value", role_card_ids)
+        for value in snapshot.control_object_card_values:
+            if card_types.get(value.control_object_card_id) is not CardType.CONTROL_OBJECT:
+                raise ValueError("control-object role requires a control-object card")
+            if value.control_object_card_id not in active_control_object_card_ids:
+                raise ValueError(
+                    "control-object role requires a card in the explanation"
+                )
+        if set(role_card_ids) != active_control_object_card_ids:
+            raise ValueError(
+                "each control-object card in the explanation requires exactly one role"
+            )
         for field_value in snapshot.card_field_values:
             if field_value.card_id not in card_types:
                 raise ValueError("card field value references an unknown card")
